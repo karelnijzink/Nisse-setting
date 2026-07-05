@@ -23,7 +23,7 @@ export function StatusSelect({
         defaultValue={current}
         onChange={() => formRef.current?.requestSubmit()}
         aria-label="Change lead status"
-        className="cursor-pointer rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1 text-xs text-slate-200 outline-none focus:border-indigo-500"
+        className="cursor-pointer rounded-md border border-line bg-page/50 px-2 py-1 text-xs text-ink outline-none transition-colors hover:border-brand/40 focus:border-brand focus:ring-2 focus:ring-brand/15"
       >
         {OPTIONS.map((s) => (
           <option key={s} value={s}>

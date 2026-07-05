@@ -9,16 +9,16 @@ export default async function CallsPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Call Logs
         </h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-muted">
           Transcripts, summaries and recordings captured from Vapi.
         </p>
       </div>
 
       {calls.length === 0 ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-10 text-center text-sm text-slate-500">
+        <div className="rounded-xl border border-line bg-surface p-10 text-center text-sm text-muted shadow-card">
           No calls logged yet.
         </div>
       ) : (
@@ -26,21 +26,23 @@ export default async function CallsPage() {
           {calls.map((call) => (
             <div
               key={call.id}
-              className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50"
+              className="overflow-hidden rounded-xl border border-line bg-surface shadow-card"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 px-5 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-page/40 px-5 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-100">
-                    {call.lead_id ? leadName.get(call.lead_id) ?? "Unknown lead" : "Unknown lead"}
+                  <p className="text-sm font-semibold text-ink">
+                    {call.lead_id
+                      ? leadName.get(call.lead_id) ?? "Unknown lead"
+                      : "Unknown lead"}
                   </p>
-                  <p className="font-mono text-[11px] text-slate-500">
+                  <p className="font-mono text-[11px] text-muted">
                     {new Date(call.created_at).toLocaleString("en-CA", {
                       timeZone: "America/Vancouver",
                     })}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-slate-500/15 px-2.5 py-0.5 text-xs text-slate-300 ring-1 ring-inset ring-slate-500/30">
+                  <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs text-stone-600 ring-1 ring-inset ring-stone-200">
                     {call.status ?? "unknown"}
                   </span>
                   {call.recording_url ? (
@@ -48,7 +50,7 @@ export default async function CallsPage() {
                       href={call.recording_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+                      className="text-xs font-medium text-brand hover:text-brand-dark"
                     >
                       ▶ Recording
                     </a>
@@ -57,19 +59,19 @@ export default async function CallsPage() {
               </div>
 
               <div className="px-5 py-4">
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-ink/90">
                   {call.summary ?? "No summary available."}
                 </p>
 
                 {call.transcript ? (
-                  <details className="mt-3 group">
-                    <summary className="cursor-pointer list-none text-xs font-medium text-indigo-400 hover:text-indigo-300">
+                  <details className="group mt-3">
+                    <summary className="cursor-pointer list-none text-xs font-medium text-brand hover:text-brand-dark">
                       <span className="group-open:hidden">Show transcript ▾</span>
                       <span className="hidden group-open:inline">
                         Hide transcript ▴
                       </span>
                     </summary>
-                    <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-800 bg-slate-950/60 p-4 font-sans text-xs leading-relaxed text-slate-400">
+                    <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-page/50 p-4 font-sans text-xs leading-relaxed text-muted">
                       {call.transcript}
                     </pre>
                   </details>

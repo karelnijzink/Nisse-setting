@@ -21,7 +21,7 @@ export function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-1">
+    <nav className="flex flex-col gap-0.5">
       {LINKS.map((link) => {
         const active =
           link.href === "/"
@@ -33,8 +33,8 @@ export function Nav() {
             href={link.href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-indigo-500/15 text-indigo-300"
-                : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
+                ? "bg-brand-tint text-brand-dark"
+                : "text-muted hover:bg-black/[0.04] hover:text-ink"
             }`}
           >
             <svg

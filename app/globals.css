@@ -2,12 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ */
+/*  Nisse Group brand tokens                                          */
+/*  Single source of truth for the whole console. To reskin, change   */
+/*  these RGB triplets — every component reads them via Tailwind.     */
+/*                                                                    */
+/*  Identity: "Nisse" — the Nordic helper that quietly keeps the      */
+/*  house running. Calm, premium, trustworthy. Evergreen + warm sand. */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #0b0f19;
-  --foreground: #e6e8ee;
+  /* Primary brand — evergreen */
+  --brand: 17 94 68; /* #115E44 */
+  --brand-dark: 11 71 51; /* #0B4733 */
+  --brand-tint: 232 242 237; /* #E8F2ED */
+  --brand-contrast: 255 255 255;
+
+  /* Warm secondary accent — used sparingly (highlights, the mark's glow) */
+  --accent: 197 124 46; /* #C57C2E */
+
+  /* Neutrals */
+  --ink: 22 27 25; /* near-black, warm */
+  --muted: 92 104 99; /* secondary text */
+  --surface: 255 255 255; /* cards */
+  --page: 247 246 242; /* warm sand page bg */
+  --line: 229 227 219; /* hairline borders */
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--ink));
+  background-color: rgb(var(--page));
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Subtle top-of-page brand wash */
+.brand-wash {
+  background-image: radial-gradient(
+    120% 90% at 0% 0%,
+    rgb(var(--brand-tint) / 0.7) 0%,
+    transparent 55%
+  );
 }

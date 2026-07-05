@@ -1,10 +1,10 @@
 import type { LeadStatus } from "@/lib/types";
 
 const STYLES: Record<LeadStatus, string> = {
-  pending: "bg-slate-500/15 text-slate-300 ring-slate-500/30",
-  called: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
-  booked: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
-  failed: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
+  pending: "bg-stone-100 text-stone-600 ring-stone-200",
+  called: "bg-amber-50 text-amber-700 ring-amber-200",
+  booked: "bg-brand-tint text-brand-dark ring-brand/20",
+  failed: "bg-rose-50 text-rose-600 ring-rose-200",
 };
 
 const LABELS: Record<LeadStatus, string> = {
