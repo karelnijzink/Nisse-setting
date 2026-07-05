@@ -15,6 +15,11 @@ const LINKS = [
     label: "Call Logs",
     icon: "M3 5a2 2 0 012-2h2l2 5-2 1a11 11 0 005 5l1-2 5 2v2a2 2 0 01-2 2A16 16 0 013 5z",
   },
+  {
+    href: "/emails",
+    label: "Emails",
+    icon: "M3 5h18v14H3zM3 7l9 6 9-6",
+  },
 ];
 
 export function Nav() {

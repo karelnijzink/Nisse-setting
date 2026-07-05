@@ -68,6 +68,38 @@ alter table public.appt_leads enable row level security;
 alter table public.appt_call_logs enable row level security;
 
 -- ----------------------------------------------------------------------------
+-- appt_emails  (email outbound channel)
+-- ----------------------------------------------------------------------------
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'appt_email_status') then
+    create type appt_email_status as enum ('queued', 'sent', 'failed', 'preview');
+  end if;
+end
+$$;
+
+create table if not exists public.appt_emails (
+  id                   uuid primary key default gen_random_uuid(),
+  lead_id              uuid references public.appt_leads (id) on delete set null,
+  to_email             text not null,
+  subject              text not null,
+  body_html            text,
+  body_text            text,
+  template             text,
+  status               appt_email_status not null default 'queued',
+  provider             text,
+  provider_message_id  text,
+  error                text,
+  created_at           timestamptz not null default now(),
+  sent_at              timestamptz
+);
+
+create index if not exists appt_emails_lead_id_idx on public.appt_emails (lead_id);
+create index if not exists appt_emails_status_idx on public.appt_emails (status);
+
+alter table public.appt_emails enable row level security;
+
+-- ----------------------------------------------------------------------------
 -- Seed data (optional — remove before production)
 -- ----------------------------------------------------------------------------
 -- insert into public.appt_leads (name, phone_number, email, company_name) values

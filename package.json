@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "call": "tsx scripts/start-calling.ts",
+    "email": "tsx scripts/start-emailing.ts",
     "assistant:sync": "tsx scripts/create-assistant.ts"
   },
   "dependencies": {

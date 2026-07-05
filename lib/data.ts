@@ -7,7 +7,7 @@
 import "server-only";
 import { getSupabase } from "./supabase";
 import * as demo from "./demo-store";
-import type { CallLog, Lead, LeadStatus } from "./types";
+import type { CallLog, EmailLog, Lead, LeadStatus } from "./types";
 
 export function isSupabaseConfigured(): boolean {
   return Boolean(
@@ -96,4 +96,81 @@ export async function updateLeadStatus(
     .eq("id", id);
 
   if (error) throw new Error(`updateLeadStatus failed: ${error.message}`);
+}
+
+export async function getLeadById(id: string): Promise<Lead | null> {
+  if (!isSupabaseConfigured()) return demo.getLeadById(id);
+
+  const { data, error } = await getSupabase()
+    .from("appt_leads")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`getLeadById failed: ${error.message}`);
+  return data ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// Email outbound
+// ---------------------------------------------------------------------------
+
+export interface EmailStats {
+  total: number;
+  sent: number;
+  failed: number;
+  preview: number;
+}
+
+export async function listEmails(): Promise<EmailLog[]> {
+  if (!isSupabaseConfigured()) return demo.listEmails();
+
+  const { data, error } = await getSupabase()
+    .from("appt_emails")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`listEmails failed: ${error.message}`);
+  return data ?? [];
+}
+
+export async function getEmailStats(): Promise<EmailStats> {
+  const emails = await listEmails();
+  const count = (s: EmailLog["status"]) =>
+    emails.filter((e) => e.status === s).length;
+  return {
+    total: emails.length,
+    sent: count("sent"),
+    failed: count("failed"),
+    preview: count("preview"),
+  };
+}
+
+/** True if the lead already has a successfully sent email logged. */
+export async function hasBeenEmailed(leadId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return demo.hasBeenEmailed(leadId);
+
+  const { count, error } = await getSupabase()
+    .from("appt_emails")
+    .select("id", { count: "exact", head: true })
+    .eq("lead_id", leadId)
+    .eq("status", "sent");
+
+  if (error) throw new Error(`hasBeenEmailed failed: ${error.message}`);
+  return (count ?? 0) > 0;
+}
+
+export async function logEmail(
+  row: Omit<EmailLog, "id" | "created_at">,
+): Promise<EmailLog> {
+  if (!isSupabaseConfigured()) return demo.logEmail(row);
+
+  const { data, error } = await getSupabase()
+    .from("appt_emails")
+    .insert(row)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(`logEmail failed: ${error.message}`);
+  return data;
 }

@@ -28,6 +28,24 @@ export type CallLog = {
   created_at: string;
 };
 
+export type EmailStatus = "queued" | "sent" | "failed" | "preview";
+
+export type EmailLog = {
+  id: string;
+  lead_id: string | null;
+  to_email: string;
+  subject: string;
+  body_html: string | null;
+  body_text: string | null;
+  template: string | null;
+  status: EmailStatus;
+  provider: string | null;
+  provider_message_id: string | null;
+  error: string | null;
+  created_at: string;
+  sent_at: string | null;
+};
+
 // Strongly-typed Supabase schema for the JS client. The shape conforms to
 // postgrest-js `GenericSchema` (each table needs Row/Insert/Update/Relationships).
 export interface Database {
@@ -48,11 +66,20 @@ export interface Database {
         Update: Partial<Omit<CallLog, "id" | "created_at">>;
         Relationships: [];
       };
+      appt_emails: {
+        Row: EmailLog;
+        // to_email + subject are required; everything else is defaulted/nullable.
+        Insert: Pick<EmailLog, "to_email" | "subject"> &
+          Partial<Omit<EmailLog, "to_email" | "subject">>;
+        Update: Partial<Omit<EmailLog, "id" | "created_at">>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       appt_lead_status: LeadStatus;
+      appt_email_status: EmailStatus;
     };
     CompositeTypes: Record<string, never>;
   };

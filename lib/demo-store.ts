@@ -6,7 +6,7 @@
 // SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are configured.
 
 import { randomUUID } from "node:crypto";
-import type { CallLog, Lead, LeadStatus } from "./types";
+import type { CallLog, EmailLog, Lead, LeadStatus } from "./types";
 
 function daysAgo(n: number): string {
   const d = new Date();
@@ -105,14 +105,21 @@ const seedCallLogs: CallLog[] = [
 interface DemoState {
   leads: Lead[];
   callLogs: CallLog[];
+  emails: EmailLog[];
 }
 const g = globalThis as typeof globalThis & { __nisseDemo?: DemoState };
 const state: DemoState =
   g.__nisseDemo ??
-  (g.__nisseDemo = { leads: [...seedLeads], callLogs: [...seedCallLogs] });
+  (g.__nisseDemo = {
+    leads: [...seedLeads],
+    callLogs: [...seedCallLogs],
+    emails: [],
+  });
 
 const leads = state.leads;
 const callLogs = state.callLogs;
+// Tolerate an older global shape that predates the emails array.
+const emails = state.emails ?? (state.emails = []);
 
 export async function listLeads(): Promise<Lead[]> {
   return [...leads].sort((a, b) => b.created_at.localeCompare(a.created_at));
@@ -147,4 +154,28 @@ export async function updateLeadStatus(
 ): Promise<void> {
   const lead = leads.find((l) => l.id === id);
   if (lead) lead.status = status;
+}
+
+export async function getLeadById(id: string): Promise<Lead | null> {
+  return leads.find((l) => l.id === id) ?? null;
+}
+
+export async function listEmails(): Promise<EmailLog[]> {
+  return [...emails].sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+export async function hasBeenEmailed(leadId: string): Promise<boolean> {
+  return emails.some((e) => e.lead_id === leadId && e.status === "sent");
+}
+
+export async function logEmail(
+  row: Omit<EmailLog, "id" | "created_at">,
+): Promise<EmailLog> {
+  const email: EmailLog = {
+    ...row,
+    id: randomUUID(),
+    created_at: new Date().toISOString(),
+  };
+  emails.push(email);
+  return email;
 }

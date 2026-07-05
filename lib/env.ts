@@ -58,6 +58,38 @@ export const env = {
     return parsed;
   },
 
+  // --- Email outbound ---
+  /** Zapier Catch-Hook URL (app → Zapier → Gmail send). Preferred connector. */
+  get emailWebhookUrl(): string | undefined {
+    const v = process.env.EMAIL_WEBHOOK_URL;
+    return v && v.trim() !== "" ? v : undefined;
+  },
+  /** Direct Resend API key — alternative to the Zapier webhook. */
+  get resendApiKey(): string | undefined {
+    const v = process.env.RESEND_API_KEY;
+    return v && v.trim() !== "" ? v : undefined;
+  },
+  get emailFrom() {
+    return optional("EMAIL_FROM", "sam@nissegroup.com");
+  },
+  get emailFromName() {
+    return optional("EMAIL_FROM_NAME", "Sam — Nisse Group");
+  },
+  get calBookingUrl() {
+    return optional("CAL_BOOKING_URL", "https://cal.com/karel-nijzink/15min");
+  },
+  get emailDelayMs(): number {
+    return Number.parseInt(optional("EMAIL_DELAY_MS", "20000"), 10);
+  },
+  get emailBatchLimit(): number {
+    return Number.parseInt(optional("EMAIL_BATCH_LIMIT", "0"), 10);
+  },
+
+  /** True when a real send path is configured (otherwise emails are previews). */
+  get isEmailConfigured(): boolean {
+    return Boolean(this.emailWebhookUrl || this.resendApiKey);
+  },
+
   // Optional tuning
   get defaultTimezone() {
     return optional("DEFAULT_TIMEZONE", "America/Vancouver");

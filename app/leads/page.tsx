@@ -2,6 +2,7 @@ import { listLeads } from "@/lib/data";
 import { AddLeadForm } from "@/components/AddLeadForm";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatusSelect } from "@/components/StatusSelect";
+import { EmailButton } from "@/components/EmailButton";
 
 export const dynamic = "force-dynamic";
 
@@ -33,12 +34,13 @@ export default async function LeadsPage() {
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Update</th>
+                <th className="px-4 py-3 font-medium">Outreach</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {leads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-muted">
+                  <td colSpan={7} className="px-4 py-10 text-center text-muted">
                     No leads yet. Add one above.
                   </td>
                 </tr>
@@ -62,6 +64,9 @@ export default async function LeadsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <StatusSelect id={lead.id} current={lead.status} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EmailButton id={lead.id} hasEmail={Boolean(lead.email)} />
                     </td>
                   </tr>
                 ))

@@ -1,9 +1,13 @@
 import Link from "next/link";
-import { getStats, listCallLogs } from "@/lib/data";
+import { getStats, getEmailStats, listCallLogs } from "@/lib/data";
 import { StatCard } from "@/components/StatCard";
 
 export default async function DashboardPage() {
-  const [stats, calls] = await Promise.all([getStats(), listCallLogs()]);
+  const [stats, emailStats, calls] = await Promise.all([
+    getStats(),
+    getEmailStats(),
+    listCallLogs(),
+  ]);
   const recent = calls.slice(0, 4);
 
   return (
@@ -26,11 +30,18 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
         <StatCard label="Total Leads" value={stats.total} />
         <StatCard label="Pending" value={stats.pending} />
         <StatCard label="Called" value={stats.called} />
         <StatCard label="Booked" value={stats.booked} />
+        <StatCard
+          label="Emails Sent"
+          value={emailStats.sent}
+          hint={
+            emailStats.preview > 0 ? `${emailStats.preview} previewed` : undefined
+          }
+        />
         <StatCard
           label="Conversion"
           value={`${stats.conversionRate}%`}
