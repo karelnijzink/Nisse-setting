@@ -3,42 +3,51 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ */
-/*  Nisse Group brand tokens                                          */
-/*  Single source of truth for the whole console. To reskin, change   */
-/*  these RGB triplets — every component reads them via Tailwind.     */
+/*  Nisse Group brand tokens — matched to nissegroup.com              */
+/*  Single source of truth for the console. Reskin by editing these.  */
 /*                                                                    */
-/*  Identity: "Nisse" — the Nordic helper that quietly keeps the      */
-/*  house running. Calm, premium, trustworthy. Evergreen + warm sand. */
+/*  Identity: the "nisse" (Nordic helper) quietly taking recurring    */
+/*  work off your plate. Warm cream · forest green · ink · sage.      */
 /* ------------------------------------------------------------------ */
 :root {
-  /* Primary brand — evergreen */
-  --brand: 17 94 68; /* #115E44 */
-  --brand-dark: 11 71 51; /* #0B4733 */
-  --brand-tint: 232 242 237; /* #E8F2ED */
-  --brand-contrast: 255 255 255;
+  /* Primary brand — forest green (the "We build it." accent on the site) */
+  --brand: 51 80 62; /* #33503E */
+  --brand-dark: 38 64 47; /* #26402F */
+  --brand-tint: 228 235 225; /* #E4EBE1 */
+  --brand-contrast: 251 250 246;
 
-  /* Warm secondary accent — used sparingly (highlights, the mark's glow) */
-  --accent: 197 124 46; /* #C57C2E */
+  /* Secondary — muted sage (the underline swash / mascot line-work) */
+  --accent: 143 163 137; /* #8FA389 */
 
   /* Neutrals */
-  --ink: 22 27 25; /* near-black, warm */
-  --muted: 92 104 99; /* secondary text */
-  --surface: 255 255 255; /* cards */
-  --page: 247 246 242; /* warm sand page bg */
-  --line: 229 227 219; /* hairline borders */
+  --ink: 28 27 24; /* #1C1B18 warm near-black — headlines */
+  --muted: 107 108 97; /* #6B6C61 warm gray — secondary text */
+  --surface: 251 250 246; /* #FBFAF6 warm white — cards */
+  --page: 242 239 230; /* #F2EFE6 warm cream — page */
+  --line: 227 223 211; /* #E3DFD3 warm hairline */
 }
 
 body {
   color: rgb(var(--ink));
   background-color: rgb(var(--page));
-  font-feature-settings: "cv11", "ss01";
 }
 
-/* Subtle top-of-page brand wash */
+/* Subtle sage wash behind the sidebar / hero */
 .brand-wash {
   background-image: radial-gradient(
     120% 90% at 0% 0%,
-    rgb(var(--brand-tint) / 0.7) 0%,
+    rgb(var(--brand-tint) / 0.6) 0%,
     transparent 55%
   );
+}
+
+/* Sage swash underline, echoing the homepage "We build it." mark */
+.brand-underline {
+  background-image: linear-gradient(
+    rgb(var(--accent) / 0.55),
+    rgb(var(--accent) / 0.55)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 92%;
+  background-size: 100% 0.28em;
 }

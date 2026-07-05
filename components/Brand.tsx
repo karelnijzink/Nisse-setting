@@ -1,57 +1,50 @@
 export function Logo({
   className = "",
-  showText = true,
+  showTag = true,
 }: {
   className?: string;
-  showText?: boolean;
+  showTag?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      <Mark className="h-9 w-9" />
-      {showText ? (
-        <div className="leading-tight">
-          <div className="text-[15px] font-semibold tracking-tight text-ink">
-            Nisse<span className="text-brand"> Group</span>
-          </div>
-          <div className="text-[11px] font-medium tracking-wide text-muted">
-            AI Appointment Agent
-          </div>
-        </div>
+    <div className={`flex flex-col ${className}`}>
+      <div className="flex items-baseline gap-2">
+        <span className="font-serif text-[26px] italic leading-none text-ink">
+          Nisse
+        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
+          Group
+        </span>
+      </div>
+      {showTag ? (
+        <span className="mt-1 text-[11px] font-medium tracking-wide text-muted">
+          AI Appointment Agent
+        </span>
       ) : null}
     </div>
   );
 }
 
 /**
- * The mark: an evergreen roundel holding a stylized "nisse" hat/roof silhouette
- * over a soundwave — the quiet helper (voice) that keeps the house running.
+ * The nisse (Nordic helper) — a small green-hatted gnome, echoing the mascot
+ * on nissegroup.com. Used as a compact mark where a full wordmark won't fit.
  */
 export function Mark({ className = "" }: { className?: string }) {
   return (
-    <div
-      className={`relative grid place-items-center rounded-[10px] bg-brand shadow-[0_2px_8px_-2px_rgb(17_94_68_/_0.5)] ${className}`}
-    >
-      <svg viewBox="0 0 32 32" className="h-[62%] w-[62%]" fill="none">
-        {/* nisse hat / gable */}
-        <path
-          d="M16 4 L26 15 H6 Z"
-          fill="rgb(var(--brand-contrast))"
-          opacity="0.95"
-        />
-        <circle cx="16" cy="4.5" r="1.8" fill="rgb(var(--accent))" />
-        {/* soundwave */}
-        <g
-          stroke="rgb(var(--brand-contrast))"
-          strokeWidth="2"
-          strokeLinecap="round"
-        >
-          <path d="M9 21 v4" opacity="0.7" />
-          <path d="M13 19 v8" />
-          <path d="M16 22 v2" opacity="0.7" />
-          <path d="M19 19 v8" />
-          <path d="M23 21 v4" opacity="0.7" />
-        </g>
-      </svg>
-    </div>
+    <svg viewBox="0 0 32 32" className={className} fill="none" aria-hidden>
+      {/* hat */}
+      <path
+        d="M16 4 C11 10 8 15 7 20 C11 18 21 18 25 20 C24 15 21 10 16 4 Z"
+        fill="rgb(var(--brand))"
+      />
+      {/* hat tip */}
+      <circle cx="16" cy="4" r="1.6" fill="rgb(var(--accent))" />
+      {/* face / beard */}
+      <path
+        d="M9 20 C9 25 12 29 16 29 C20 29 23 25 23 20 C21 19 11 19 9 20 Z"
+        fill="rgb(var(--brand-tint))"
+      />
+      {/* nose */}
+      <circle cx="16" cy="21.5" r="1.5" fill="rgb(var(--accent))" />
+    </svg>
   );
 }

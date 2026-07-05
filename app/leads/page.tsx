@@ -11,7 +11,7 @@ export default async function LeadsPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Leads</h1>
+        <h1 className="font-serif text-3xl font-medium text-ink">Leads</h1>
         <p className="mt-1 text-sm text-muted">
           {leads.length} lead{leads.length === 1 ? "" : "s"} · only call
           contacts who have consented.

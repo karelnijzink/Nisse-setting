@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
+import { Playfair_Display, Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { Logo } from "@/components/Brand";
 import { Nav } from "@/components/Nav";
 import { isSupabaseConfigured } from "@/lib/data";
+
+// Display serif (wordmark + headlines) and body sans, matching nissegroup.com.
+const serif = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Nisse Group — AI Appointment Agent",
@@ -19,8 +36,8 @@ export default function RootLayout({
   const demoMode = !isSupabaseConfigured();
 
   return (
-    <html lang="en">
-      <body className="min-h-screen antialiased">
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+      <body className="min-h-screen font-sans antialiased">
         <div className="flex min-h-screen">
           {/* Sidebar */}
           <aside className="brand-wash hidden w-64 shrink-0 flex-col border-r border-line bg-surface/60 p-4 md:flex">
