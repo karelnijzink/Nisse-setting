@@ -29,7 +29,7 @@ function sleep(ms: number): Promise<void> {
 async function fetchPendingLeads(): Promise<Lead[]> {
   const supabase = getSupabase();
   let query = supabase
-    .from("leads")
+    .from("appt_leads")
     .select("*")
     .eq("status", "pending")
     .order("created_at", { ascending: true });
@@ -77,7 +77,7 @@ async function dialLead(lead: Lead): Promise<void> {
   // Optimistically mark 'called' so a concurrent/later run won't re-dial.
   // The webhook will fill in the call_logs row and final status.
   const { error } = await supabase
-    .from("leads")
+    .from("appt_leads")
     .update({ status: "called" })
     .eq("id", lead.id);
   if (error) {
@@ -115,7 +115,7 @@ async function main() {
       );
       // Mark failed so it isn't stuck in 'pending' forever.
       await getSupabase()
-        .from("leads")
+        .from("appt_leads")
         .update({ status: "failed" })
         .eq("id", lead.id);
     }

@@ -29,7 +29,7 @@ export async function listLeads(): Promise<Lead[]> {
   if (!isSupabaseConfigured()) return demo.listLeads();
 
   const { data, error } = await getSupabase()
-    .from("leads")
+    .from("appt_leads")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -41,7 +41,7 @@ export async function listCallLogs(): Promise<CallLog[]> {
   if (!isSupabaseConfigured()) return demo.listCallLogs();
 
   const { data, error } = await getSupabase()
-    .from("call_logs")
+    .from("appt_call_logs")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -75,7 +75,7 @@ export async function addLead(input: {
   if (!isSupabaseConfigured()) return demo.addLead(input);
 
   const { data, error } = await getSupabase()
-    .from("leads")
+    .from("appt_leads")
     .insert({ ...input, status: "pending" })
     .select("*")
     .single();
@@ -91,7 +91,7 @@ export async function updateLeadStatus(
   if (!isSupabaseConfigured()) return demo.updateLeadStatus(id, status);
 
   const { error } = await getSupabase()
-    .from("leads")
+    .from("appt_leads")
     .update({ status })
     .eq("id", id);
 

@@ -81,7 +81,7 @@ async function handleCallStarted(message: VapiMessage) {
   const { leadId } = getVariableValues(message.call);
   const supabase = getSupabase();
 
-  const { error } = await supabase.from("call_logs").upsert(
+  const { error } = await supabase.from("appt_call_logs").upsert(
     {
       vapi_call_id: callId,
       lead_id: leadId ?? null,
@@ -95,7 +95,7 @@ async function handleCallStarted(message: VapiMessage) {
 
   if (leadId) {
     await supabase
-      .from("leads")
+      .from("appt_leads")
       .update({ status: "called" })
       .eq("id", leadId)
       .eq("status", "pending"); // don't clobber 'booked'
@@ -161,7 +161,7 @@ async function handleToolCalls(message: VapiMessage): Promise<NextResponse> {
         // Mark the lead as booked.
         if (vars.leadId) {
           await getSupabase()
-            .from("leads")
+            .from("appt_leads")
             .update({ status: "booked" })
             .eq("id", vars.leadId);
         }
@@ -201,7 +201,7 @@ async function handleCallEnded(message: VapiMessage) {
     message.recordingUrl ?? message.artifact?.recordingUrl ?? null;
   const endedReason = message.endedReason ?? "ended";
 
-  const { error } = await supabase.from("call_logs").upsert(
+  const { error } = await supabase.from("appt_call_logs").upsert(
     {
       vapi_call_id: callId,
       lead_id: leadId ?? null,
@@ -220,14 +220,14 @@ async function handleCallEnded(message: VapiMessage) {
   // mark it 'failed' so it isn't silently stuck. 'booked' is left untouched.
   if (leadId) {
     const { data: lead } = await supabase
-      .from("leads")
+      .from("appt_leads")
       .select("status")
       .eq("id", leadId)
       .single();
 
     if (lead && lead.status !== "booked") {
       await supabase
-        .from("leads")
+        .from("appt_leads")
         .update({ status: "failed" })
         .eq("id", leadId)
         .neq("status", "booked");

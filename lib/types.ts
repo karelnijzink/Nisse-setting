@@ -33,7 +33,7 @@ export type CallLog = {
 export interface Database {
   public: {
     Tables: {
-      leads: {
+      appt_leads: {
         Row: Lead;
         // name + phone_number are required; everything else is defaulted/nullable.
         Insert: Pick<Lead, "name" | "phone_number"> &
@@ -41,7 +41,7 @@ export interface Database {
         Update: Partial<Omit<Lead, "id" | "created_at">>;
         Relationships: [];
       };
-      call_logs: {
+      appt_call_logs: {
         Row: CallLog;
         // All columns are nullable/defaulted, so every field is optional on insert.
         Insert: Partial<CallLog>;
@@ -52,7 +52,7 @@ export interface Database {
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
-      lead_status: LeadStatus;
+      appt_lead_status: LeadStatus;
     };
     CompositeTypes: Record<string, never>;
   };
