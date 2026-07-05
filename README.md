@@ -57,6 +57,9 @@ Google Meet via Cal.com.
 | `app/api/vapi/webhook/route.ts` | Handles call lifecycle + `bookCalendar` |
 | `app/api/health/route.ts` | Liveness probe |
 | `scripts/start-calling.ts` | Outbound dialer |
+| `scripts/start-emailing.ts` | Bulk email outreach (`npm run email`) |
+| `lib/email.ts` / `lib/email-templates.ts` | Email sender + branded templates |
+| `app/emails/page.tsx` | Email outbound log |
 | `scripts/create-assistant.ts` | Creates/updates the Vapi assistant |
 
 ---
@@ -139,6 +142,32 @@ The webhook:
 1. Checks availability on the Cal.com event type for `startTime`.
 2. If free, creates the booking → Cal.com emails a Google Meet invite.
 3. If taken, returns the next open slot for Sam to offer instead.
+
+---
+
+## Email outbound
+
+A second outreach channel, parallel to the voice agent. Emails are logged to
+`appt_emails` and rendered from brand-matched templates
+(`lib/email-templates.ts`).
+
+- **Per-lead:** the **Email** button on the Leads table (server action).
+- **Bulk:** `npm run email` — sends the cold-outreach template to every lead
+  that has an address and hasn't been emailed yet (throttled).
+- **Log:** the **Emails** page shows every send with its rendered body + status.
+
+### Send path (chosen from env, in priority order)
+
+1. **Zapier webhook (`EMAIL_WEBHOOK_URL`)** — the connector integration. Create
+   a Zap: *Webhooks by Zapier → Catch Hook* (copy its URL into
+   `EMAIL_WEBHOOK_URL`), then *Gmail → Send Email* with **To** `{{to}}`,
+   **Subject** `{{subject}}`, **Body Type** `html`, **Body** `{{html}}`. The app
+   POSTs `{ to, subject, html, text, from, fromName, leadId, template }`.
+   *Draft-review mode:* set the Gmail action to **Create Draft** instead of
+   **Send Email** to queue each email for manual approval first.
+2. **Resend (`RESEND_API_KEY`)** — a direct HTTP alternative (verified domain).
+3. **Preview** — no provider set: emails are fully rendered and logged with
+   status `preview`, but not delivered. Great for reviewing copy.
 
 ---
 
