@@ -152,8 +152,13 @@ A second outreach channel, parallel to the voice agent. Emails are logged to
 (`lib/email-templates.ts`).
 
 - **Per-lead:** the **Email** button on the Leads table (server action).
-- **Bulk:** `npm run email` — sends the cold-outreach template to every lead
-  that has an address and hasn't been emailed yet (throttled).
+- **Sequence:** `npm run email` advances every emailable lead through a
+  3-touch cold sequence — **Touch 1 · Intro** (day 0) → **Touch 2 · Follow-up**
+  (day 3) → **Touch 3 · Break-up** (day 7). It sends only the one touch that's
+  currently due per lead, so run it on a daily schedule (cron) and each lead
+  progresses one step at a time. A lead drops out of the sequence once it books.
+  The steps/delays live in `lib/email-sequence.ts`; set `EMAIL_GAP_SCALE=0` to
+  ignore delays while testing.
 - **Log:** the **Emails** page shows every send with its rendered body + status.
 
 ### Send path (chosen from env, in priority order)

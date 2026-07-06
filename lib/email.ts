@@ -10,7 +10,7 @@
 //
 // Every attempt (sent / failed / preview) is written to appt_emails.
 
-import "server-only";
+// Shared with the Node/tsx email runner, so no `import "server-only"` here.
 import { env } from "./env";
 import { logEmail } from "./data";
 import type { EmailLog, EmailStatus } from "./types";

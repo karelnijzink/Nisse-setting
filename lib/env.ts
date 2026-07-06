@@ -84,6 +84,13 @@ export const env = {
   get emailBatchLimit(): number {
     return Number.parseInt(optional("EMAIL_BATCH_LIMIT", "0"), 10);
   },
+  /**
+   * Multiplies every sequence gap. 1 = real days. Set small (e.g. 0.0007 ≈ one
+   * minute per "day", or 0 for no wait) to exercise the full sequence quickly.
+   */
+  get emailGapScale(): number {
+    return Number.parseFloat(optional("EMAIL_GAP_SCALE", "1"));
+  },
 
   /** True when a real send path is configured (otherwise emails are previews). */
   get isEmailConfigured(): boolean {

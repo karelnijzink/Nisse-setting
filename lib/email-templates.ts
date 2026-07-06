@@ -116,13 +116,40 @@ Nisse Group · Vancouver, BC`;
   return { subject, html, text };
 }
 
-export type EmailTemplate = "cold_outreach" | "follow_up";
+/** Final touch — a graceful "closing the loop" break-up email. */
+export function breakUpEmail(input: EmailInput): RenderedEmail {
+  const first = firstNameOf(input.name);
+  const fromName = input.fromName ?? "Sam";
+
+  const subject = `Should I close the loop?`;
+
+  const text = `Hi ${first},
+
+I don't want to keep landing in your inbox, so this is my last note. If taking a few hours of recurring admin off your team's plate is worth a quick look down the road, the door's open any time: ${input.bookingUrl}
+
+Either way, wishing you a great quarter.
+
+${fromName}
+Nisse Group · Vancouver, BC`;
+
+  const html = shell(
+    `<p style="margin:0 0 12px;">Hi ${first},</p>
+     <p style="margin:0 0 12px;">I don't want to keep landing in your inbox, so this is my last note. If taking a few hours of recurring admin off your team's plate is worth a quick look down the road, the door's open any time.</p>
+     <p style="margin:0 0 4px;">Either way, wishing you a great quarter.</p>`,
+    input.bookingUrl,
+    `${fromName}`,
+  );
+
+  return { subject, html, text };
+}
+
+export type EmailTemplate = "cold_outreach" | "follow_up" | "break_up";
 
 export function renderTemplate(
   template: EmailTemplate,
   input: EmailInput,
 ): RenderedEmail {
-  return template === "follow_up"
-    ? followUpEmail(input)
-    : coldOutreachEmail(input);
+  if (template === "follow_up") return followUpEmail(input);
+  if (template === "break_up") return breakUpEmail(input);
+  return coldOutreachEmail(input);
 }

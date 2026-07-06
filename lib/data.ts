@@ -4,7 +4,9 @@
 // to an in-memory demo store so the app is runnable without any credentials.
 // All functions are server-only (they may touch the service-role key).
 
-import "server-only";
+// NOTE: intentionally not using `import "server-only"` — this module is shared
+// with the Node/tsx scripts (start-emailing, etc.). It is only ever imported by
+// server components, server actions, and scripts, never by a client component.
 import { getSupabase } from "./supabase";
 import * as demo from "./demo-store";
 import type { CallLog, EmailLog, Lead, LeadStatus } from "./types";

@@ -1,69 +1,106 @@
 /**
- * Outbound email sender for the Nisse Group agent.
+ * Sequence-aware outbound email runner for the Nisse Group agent.
  *
- * Queries leads that have an email address and haven't been emailed yet,
- * renders the branded cold-outreach template, and sends via the configured
- * provider (Zapier webhook → Resend → preview). Every attempt is logged to
- * appt_emails.
+ * Advances every emailable lead through the cold-email SEQUENCE
+ * (Touch 1 intro → Touch 2 follow-up → Touch 3 break-up), sending only the
+ * one touch that is currently due for each lead. Run it on a schedule
+ * (e.g. daily via cron) and each lead progresses one step at a time.
+ *
+ * A lead is skipped once it books (status 'booked'), once the sequence is
+ * complete, or until the next touch's delay has elapsed.
  *
  * Usage:
- *   npm run email                  # email all not-yet-emailed leads
+ *   npm run email                    # advance the sequence by one due touch each
  *   EMAIL_BATCH_LIMIT=25 npm run email
- *   EMAIL_DELAY_MS=30000 npm run email
+ *   EMAIL_GAP_SCALE=0 npm run email  # ignore delays (send next touch now) — testing
  *
- * With no provider configured, it runs in PREVIEW mode: nothing is delivered,
- * but each rendered email is logged so you can review it in the dashboard.
+ * With no provider configured it runs in PREVIEW mode: emails are rendered
+ * and logged (status 'preview') but not delivered.
  */
 
 import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" });
 loadEnv();
 
-import { listLeads, hasBeenEmailed } from "@/lib/data";
+import { listLeads, listEmails } from "@/lib/data";
 import { sendEmail } from "@/lib/email";
-import { coldOutreachEmail } from "@/lib/email-templates";
+import { renderTemplate } from "@/lib/email-templates";
+import {
+  nextSequenceStep,
+  type PriorTouch,
+} from "@/lib/email-sequence";
 import { env } from "@/lib/env";
+import type { EmailLog, Lead } from "@/lib/types";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Group delivered touches (sent, or preview in demo) by lead. */
+function priorTouchesByLead(emails: EmailLog[]): Map<string, PriorTouch[]> {
+  const map = new Map<string, PriorTouch[]>();
+  for (const e of emails) {
+    if (!e.lead_id || !e.template) continue;
+    if (e.status !== "sent" && e.status !== "preview") continue;
+    const list = map.get(e.lead_id) ?? [];
+    list.push({ template: e.template, at: e.sent_at ?? e.created_at });
+    map.set(e.lead_id, list);
+  }
+  return map;
+}
+
 async function main() {
-  console.log("── Nisse Group outbound email ──");
+  console.log("── Nisse Group email sequence ──");
   console.log(
     env.isEmailConfigured
       ? `Provider: ${env.emailWebhookUrl ? "Zapier webhook" : "Resend"}`
       : "Provider: none — PREVIEW mode (nothing will be delivered).",
   );
-
-  const leads = await listLeads();
-  const withEmail = leads.filter((l) => l.email);
-
-  // Skip leads that already have a sent email.
-  const targets: typeof withEmail = [];
-  for (const lead of withEmail) {
-    if (!(await hasBeenEmailed(lead.id))) targets.push(lead);
+  if (env.emailGapScale !== 1) {
+    console.log(`Gap scale: ${env.emailGapScale} (delays compressed).`);
   }
 
-  const batch =
-    env.emailBatchLimit > 0 ? targets.slice(0, env.emailBatchLimit) : targets;
+  const [leads, emails] = await Promise.all([listLeads(), listEmails()]);
+  const priorByLead = priorTouchesByLead(emails);
+  const now = new Date();
 
-  if (batch.length === 0) {
-    console.log("No leads to email. 👋");
-    return;
+  // Figure out who has a touch due right now.
+  type Due = { lead: Lead; template: Parameters<typeof renderTemplate>[0]; label: string };
+  const due: Due[] = [];
+  let waiting = 0;
+  let complete = 0;
+
+  for (const lead of leads.filter((l) => l.email)) {
+    const decision = nextSequenceStep(priorByLead.get(lead.id) ?? [], now, {
+      stop: lead.status === "booked",
+      gapScale: env.emailGapScale,
+    });
+    if (decision.kind === "due") {
+      due.push({ lead, template: decision.step.template, label: decision.step.label });
+    } else if (decision.kind === "waiting") {
+      waiting++;
+    } else if (decision.kind === "complete" || decision.kind === "stopped") {
+      complete++;
+    }
   }
+
+  const batch = env.emailBatchLimit > 0 ? due.slice(0, env.emailBatchLimit) : due;
 
   console.log(
-    `Emailing ${batch.length} lead(s). Delay between sends: ${env.emailDelayMs}ms.\n`,
+    `${due.length} touch(es) due · ${waiting} waiting · ${complete} done/stopped.\n`,
   );
+  if (batch.length === 0) {
+    console.log("Nothing due right now. 👋");
+    return;
+  }
 
   let sent = 0;
   let previewed = 0;
   let failed = 0;
 
   for (let i = 0; i < batch.length; i++) {
-    const lead = batch[i];
-    const rendered = coldOutreachEmail({
+    const { lead, template, label } = batch[i];
+    const rendered = renderTemplate(template, {
       name: lead.name,
       companyName: lead.company_name,
       bookingUrl: env.calBookingUrl,
@@ -77,23 +114,23 @@ async function main() {
         subject: rendered.subject,
         html: rendered.html,
         text: rendered.text,
-        template: "cold_outreach",
+        template,
       });
 
       if (result.status === "sent") {
         sent++;
-        console.log(`✉️  Sent to ${lead.name} <${lead.email}>`);
+        console.log(`✉️  ${label} → ${lead.name} <${lead.email}>`);
       } else if (result.status === "preview") {
         previewed++;
-        console.log(`👁️  Previewed for ${lead.name} <${lead.email}>`);
+        console.log(`👁️  ${label} (preview) → ${lead.name} <${lead.email}>`);
       } else {
         failed++;
-        console.error(`❌ Failed for ${lead.name}: ${result.error}`);
+        console.error(`❌ ${label} → ${lead.name}: ${result.error}`);
       }
     } catch (err) {
       failed++;
       console.error(
-        `❌ Error for ${lead.name}:`,
+        `❌ ${label} → ${lead.name}:`,
         err instanceof Error ? err.message : err,
       );
     }
