@@ -37,6 +37,12 @@ export const env = {
     return value && value.trim() !== "" ? value : undefined;
   },
 
+  /** Shared secret protecting the /api/cron/email endpoint. */
+  get cronSecret(): string | undefined {
+    const value = process.env.CRON_SECRET;
+    return value && value.trim() !== "" ? value : undefined;
+  },
+
   // Supabase
   get supabaseUrl() {
     return required("SUPABASE_URL");

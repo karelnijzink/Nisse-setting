@@ -152,13 +152,14 @@ A second outreach channel, parallel to the voice agent. Emails are logged to
 (`lib/email-templates.ts`).
 
 - **Per-lead:** the **Email** button on the Leads table (server action).
-- **Sequence:** `npm run email` advances every emailable lead through a
-  3-touch cold sequence — **Touch 1 · Intro** (day 0) → **Touch 2 · Follow-up**
-  (day 3) → **Touch 3 · Break-up** (day 7). It sends only the one touch that's
-  currently due per lead, so run it on a daily schedule (cron) and each lead
-  progresses one step at a time. A lead drops out of the sequence once it books.
-  The steps/delays live in `lib/email-sequence.ts`; set `EMAIL_GAP_SCALE=0` to
-  ignore delays while testing.
+- **Sequence:** a 3-touch cold sequence — **Touch 1 · Intro** (day 0) →
+  **Touch 2 · Follow-up** (day 3) → **Touch 3 · Break-up** (day 7). Each pass
+  sends only the one touch currently due per lead; a lead drops out once it
+  books. Steps/delays live in `lib/email-sequence.ts`; set `EMAIL_GAP_SCALE=0`
+  to ignore delays while testing.
+- **Runs itself:** `GET /api/cron/email` executes one pass and is wired to a
+  **daily Vercel Cron** (`vercel.json`, 16:00 UTC / 9am PT), protected by
+  `CRON_SECRET`. `npm run email` is the manual/local equivalent.
 - **Log:** the **Emails** page shows every send with its rendered body + status.
 
 ### Send path (chosen from env, in priority order)
